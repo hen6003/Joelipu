@@ -81,7 +81,7 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 		}
 
 		if info.IsDir() {
-			absPath = filepath.Join(u.Path, cfg.Content.Index)
+			absPath = filepath.Join(absPath, cfg.Content.Index)
 		}
 		
 		// Check again that index.gmi exists, and get the file mode
