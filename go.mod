@@ -1,4 +1,4 @@
-module github.com/hen6003/gemini-serv
+module gmi.hen6003.xyz/joelipu.git
 
 go 1.17
 
