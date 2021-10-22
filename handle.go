@@ -122,7 +122,7 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 			"REMOTE_HOST="+conn.RemoteAddr().String(),
 			// Server info
 			"GATEWAY_INTERFACE=CGI/1.1",
-			"DOCUMENT_ROOT="+cfg.Content.Index,
+			"DOCUMENT_ROOT="+cfg.Content.Root,
 			"SERVER_NAME="+cfg.Net.Host,
 			"SERVER_PORT="+strconv.Itoa(cfg.Net.Port),
 			"SERVER_SOFTWARE=Joelipu",
