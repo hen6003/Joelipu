@@ -22,7 +22,6 @@ type certsInfo struct {
 type netInfo struct {
 	Host string
 	Port int
-	PortForward bool
 }
 
 type contentInfo struct {
@@ -36,7 +35,6 @@ func loadConfig() serverCfg {
 	// Defaults
 	cfg.Net.Host = "localhost"
 	cfg.Net.Port = 1965
-	cfg.Net.PortForward = false
 	cfg.Content.Root = "root"
 	cfg.Content.Index = "index.gmi"
 
