@@ -39,4 +39,4 @@ $ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:4096 -keyout certs/serv
 ```
 
 ## Name
-"jo e lipu" is Toki Pona for "Having paper". "pana" (giving) is probally a better word than "jo", however "panaelipu" looks worse ¯\\_(ツ)_/¯.
+"jo e lipu" is Toki Pona for "Having paper". "pana" (giving) is probally a better word than "jo", however "panaelipu" looks worse ¯\\\_(ツ)\_/¯.
