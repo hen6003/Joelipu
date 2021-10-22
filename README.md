@@ -1,5 +1,5 @@
 # Joelipu
-Gemini server written for [gemini://gmi.hen6003.xyz/](my capsule)
+Gemini server written for [my capsule](gemini://gmi.hen6003.xyz/)
 
 ## Config
 The server is configured in TOML from a config.toml file in the directory the program is ran.
