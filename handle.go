@@ -25,6 +25,7 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 	var content []byte
 	var data string 
 	var executable bool
+	var absPath string
 
 	defer conn.Close()
 	r := bufio.NewReader(conn)
@@ -57,7 +58,7 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 	}
 
 	// Create absolute path
-	u.Path, err = filepath.Abs(filepath.Join(cfg.Content.Root, u.Path))
+	absPath, err = filepath.Abs(filepath.Join(cfg.Content.Root, u.Path))
 	if err != nil {
 		header.status = 59
 		header.meta = "Invalid path"
@@ -65,14 +66,14 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 	}
 	
 	// Check for attempting to read files outside of cfg.Root
-	if !strings.HasPrefix(u.Path, cfg.Content.Root) {
+	if !strings.HasPrefix(absPath, cfg.Content.Root) {
 		header.status = 50
 		header.meta = "Not allowed"
 		goto SEND
 	}
 
 	{ // Add index.gmi on if not a folder, in scope due to gotos
-		info, err := os.Stat(u.Path)
+		info, err := os.Stat(absPath)
 		if err != nil {
 			header.status = 51
 			header.meta = "File not found"
@@ -80,11 +81,11 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 		}
 
 		if info.IsDir() {
-			u.Path = filepath.Join(u.Path, cfg.Content.Index)
+			absPath = filepath.Join(u.Path, cfg.Content.Index)
 		}
 		
 		// Check again that index.gmi exists, and get the file mode
-		info, err = os.Stat(u.Path)
+		info, err = os.Stat(absPath)
 		if err != nil {
 			header.status = 51
 			header.meta = "File not found"
@@ -96,7 +97,7 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 
 	if !executable {
 		// Finally read file
-		content, err = ioutil.ReadFile(u.Path)
+		content, err = ioutil.ReadFile(absPath)
 		if err != nil {
 			header.status = 51
 			header.meta = "File not found"
@@ -104,10 +105,28 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 		}
 
 		// Get mime type from file
-		header.meta = mime.TypeByExtension(filepath.Ext(u.Path))
+		header.meta = mime.TypeByExtension(filepath.Ext(absPath))
 		header.status = 20	
 	} else {
-		cmd := exec.Command(u.Path)
+		cmd := exec.Command(absPath)
+
+		// Create envvars
+		cmd.Env = append(os.Environ(),
+			// Request info
+			"SCRIPT_FILENAME="+absPath,
+			"SCRIPT_NAME="+u.Path,
+			"REQUEST_URI="+msg,
+			"QUERY_STRING="+u.RawQuery,
+			// Remote info
+			"REMOTE_ADDR="+conn.RemoteAddr().String(),
+			"REMOTE_HOST="+conn.RemoteAddr().String(),
+			// Server info
+			"GATEWAY_INTERFACE=CGI/1.1",
+			"DOCUMENT_ROOT="+cfg.Content.Index,
+			"SERVER_NAME="+cfg.Net.Host,
+			"SERVER_PORT="+strconv.Itoa(cfg.Net.Port),
+			"SERVER_SOFTWARE=Joelipu",
+		)
 
 		// Run command and get output
 		out, err := cmd.Output()
