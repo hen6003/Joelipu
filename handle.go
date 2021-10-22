@@ -11,6 +11,7 @@ import (
 	"strings"
 	"strconv"
 	"os"
+	"os/exec"
 	"mime"
 )
 
@@ -22,6 +23,8 @@ type geminiHeader struct {
 func handleConnection(conn net.Conn, cfg serverCfg) {
 	var header geminiHeader
 	var content []byte
+	var data string 
+	var executable bool
 
 	defer conn.Close()
 	r := bufio.NewReader(conn)
@@ -79,23 +82,50 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 		if info.IsDir() {
 			u.Path = filepath.Join(u.Path, cfg.Content.Index)
 		}
+		
+		// Check again that index.gmi exists, and get the file mode
+		info, err = os.Stat(u.Path)
+		if err != nil {
+			header.status = 51
+			header.meta = "File not found"
+			goto SEND
+		}
+
+		executable = info.Mode().Perm() & 0111 != 0
 	}
 
-	// Finally read file
-	content, err = ioutil.ReadFile(u.Path)
-	if err != nil {
-		header.status = 51
-		header.meta = "File not found"
-		goto SEND
-	}
+	if !executable {
+		// Finally read file
+		content, err = ioutil.ReadFile(u.Path)
+		if err != nil {
+			header.status = 51
+			header.meta = "File not found"
+			goto SEND
+		}
 
-	// Get mime type from file
-	header.meta = mime.TypeByExtension(filepath.Ext(u.Path))
-	header.status = 20
+		// Get mime type from file
+		header.meta = mime.TypeByExtension(filepath.Ext(u.Path))
+		header.status = 20	
+	} else {
+		cmd := exec.Command(u.Path)
+
+		// Run command and get output
+		out, err := cmd.Output()
+		if err != nil {
+			header.status = 42
+			header.meta = "CGI Failed"
+			goto SEND
+		}
+
+		// Finally send data, command output uses its own
+		n, err := conn.Write(out)
+		if err != nil {
+			log.Println(n, err)
+		}
+		return
+	}
 
 SEND:
-	var data string 
-
 	if (header.status == 20) { // If header.status 20 add response
 		data = strconv.Itoa(header.status) + " " + header.meta + "\r\n" + string(content)
 	} else { // else omit it
@@ -107,5 +137,5 @@ SEND:
 	if err != nil {
 		log.Println(n, err)
 		return
-	}	
+	}
 }
