@@ -1,4 +1,4 @@
-module gmi.hen6003.xyz/joelipu.git
+module gmi.hen6003.xyz/joelipu
 
 go 1.17
 
