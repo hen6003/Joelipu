@@ -20,6 +20,7 @@ func (p PluginImpl) HandleGemini(vars plugins.GeminiVars) string {
 	var fileSystem fs.FS
 	var fileContents []string
 	var fileNames []string
+	matches := false
 
 	if vars.URL.RawQuery == "" { // If empty query ask for query
 		return "10 Search query\r\n"
@@ -51,20 +52,21 @@ func (p PluginImpl) HandleGemini(vars plugins.GeminiVars) string {
 
 			fileContents = append(fileContents, string(content))
 			fileNames = append(fileNames, path)
-		} else if d.Name()[0] == '.' {
+		} else if d.Name()[0] == '.' && len(d.Name()) > 1 {
 			return fs.SkipDir // Ignore hidden directorys
 		}
 
 		return nil
 	})
 
-	if (len(fileNames) > 0) {
-		for i, c := range fileContents {
-			if regex.MatchString(c) {
-				data += "=> " + fileNames[i] + "\n"
-			}
+	for i, c := range fileContents {
+		if regex.MatchString(c) {
+			data += "=> " + fileNames[i] + "\n"
+			matches = true
 		}
-	} else {
+	}
+
+	if !matches {
 		data += "No matches found\n"
 	}
 
