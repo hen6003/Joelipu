@@ -4,14 +4,14 @@ import (
 	"gmi.hen6003.xyz/joelipu/plugins"
 )
 
-type plugin bool
+type PluginImpl struct{}
 
-func (p plugin) HandleGemini(vars ServerCfg) string {
-	return "20 text/plain\r\n" + vars.Content.Root
+func (p PluginImpl) HandleGemini(vars plugins.GeminiVars) string {
+	return "20 text/plain\r\n" + vars.Cfg.Content.Root
 }
 
-func (p plugin) HandleType() string {
+func (p PluginImpl) HandleType() string {
 	return ".hello"
 }
 
-var Plugin plugin
+var Impl plugins.Plugin = PluginImpl{}

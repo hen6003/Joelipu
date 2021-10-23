@@ -5,32 +5,11 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
+	"gmi.hen6003.xyz/joelipu/plugins"
 )
 
-type ServerCfg struct {
-	Net netInfo
-	Certs certsInfo
-	Content contentInfo
-}
-
-type certsInfo struct {
-	Path string
-	Cert string
-	Key string
-}
-
-type netInfo struct {
-	Host string
-	Port int
-}
-
-type contentInfo struct {
-	Root string
-	Index string
-}
-
-func loadConfig() ServerCfg {
-	var cfg ServerCfg
+func loadConfig() plugins.ServerCfg {
+	var cfg plugins.ServerCfg
 
 	// Defaults
 	cfg.Net.Host = "localhost"

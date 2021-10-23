@@ -6,33 +6,30 @@ import (
 	"strconv"
 	"plugin"
 	"os"
-	"net"
-	"net/url"
 
 	"gmi.hen6003.xyz/joelipu/plugins"
 )
 
-func loadPlugins() Plugin {
+func loadPlugins() plugins.Plugin {
 	plug, err := plugin.Open("plugin/test.so")
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
 
-	symPlugin, err := plug.Lookup("Plugin")
+	symPlugin, err := plug.Lookup("Impl")
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
 
-	var plugin Plugin
-	plugin, ok := symPlugin.(Plugin)
+	plugin, ok := symPlugin.(*plugins.Plugin)
 	if !ok {
-		log.Println("Unexpected type from module symbol")
+		log.Println("Unexpected type")
 		os.Exit(1)
 	}
 
-	return plugin
+	return *plugin
 }
 
 func main() {	

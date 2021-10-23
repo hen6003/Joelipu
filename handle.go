@@ -13,6 +13,8 @@ import (
 	"os"
 	"os/exec"
 	"mime"
+
+	"gmi.hen6003.xyz/joelipu/plugins"
 )
 
 type geminiHeader struct {
@@ -20,7 +22,7 @@ type geminiHeader struct {
 	meta string
 }
 
-func handleConnection(conn net.Conn, cfg ServerCfg, plugin Plugin) {
+func handleConnection(conn net.Conn, cfg plugins.ServerCfg, plugin plugins.Plugin) {
 	var header geminiHeader
 	var content []byte
 	var data string 
@@ -91,7 +93,7 @@ func handleConnection(conn net.Conn, cfg ServerCfg, plugin Plugin) {
 
     	for _, f := range files {
 				if (f.Name() == plugin.HandleType()) {
-					data = plugin.HandleGemini(/*GeminiVars{absPath, u, conn, cfg}*/cfg)
+					data = plugin.HandleGemini(plugins.GeminiVars{absPath, u, conn, cfg})
 					goto WRITE
 				}
     	}
