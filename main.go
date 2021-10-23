@@ -9,7 +9,7 @@ import (
 	"net"
 	"net/url"
 
-	"gmi.hen6003.xyz/plugins"
+	"gmi.hen6003.xyz/joelipu/plugins"
 )
 
 func loadPlugins() Plugin {
