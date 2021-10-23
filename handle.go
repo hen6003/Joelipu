@@ -20,7 +20,7 @@ type geminiHeader struct {
 	meta string
 }
 
-func handleConnection(conn net.Conn, cfg serverCfg) {
+func handleConnection(conn net.Conn, cfg ServerCfg, plugin Plugin) {
 	var header geminiHeader
 	var content []byte
 	var data string 
@@ -81,6 +81,21 @@ func handleConnection(conn net.Conn, cfg serverCfg) {
 		}
 
 		if info.IsDir() {
+			// Check for plugins
+    	files, err := ioutil.ReadDir(absPath)
+    	if err != nil {
+				header.status = 51
+				header.meta = "File not found"
+				goto SEND
+    	}
+
+    	for _, f := range files {
+				if (f.Name() == plugin.HandleType()) {
+					data = plugin.HandleGemini(/*GeminiVars{absPath, u, conn, cfg}*/cfg)
+					goto WRITE
+				}
+    	}
+ 
 			absPath = filepath.Join(absPath, cfg.Content.Index)
 		}
 		
@@ -151,6 +166,7 @@ SEND:
 		data = strconv.Itoa(header.status) + " " + header.meta + "\r\n"
 	}
 
+WRITE:
 	// Finally send data
 	n, err := conn.Write([]byte(data))
 	if err != nil {

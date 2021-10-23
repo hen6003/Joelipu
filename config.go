@@ -7,7 +7,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type serverCfg struct {
+type ServerCfg struct {
 	Net netInfo
 	Certs certsInfo
 	Content contentInfo
@@ -29,8 +29,8 @@ type contentInfo struct {
 	Index string
 }
 
-func loadConfig() serverCfg {
-	var cfg serverCfg
+func loadConfig() ServerCfg {
+	var cfg ServerCfg
 
 	// Defaults
 	cfg.Net.Host = "localhost"

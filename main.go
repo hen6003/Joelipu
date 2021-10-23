@@ -4,11 +4,43 @@ import (
 	"log"
 	"crypto/tls"
 	"strconv"
+	"plugin"
+	"os"
+	"net"
+	"net/url"
+
+	"gmi.hen6003.xyz/plugins"
 )
 
-func main() {
+func loadPlugins() Plugin {
+	plug, err := plugin.Open("plugin/test.so")
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	symPlugin, err := plug.Lookup("Plugin")
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	var plugin Plugin
+	plugin, ok := symPlugin.(Plugin)
+	if !ok {
+		log.Println("Unexpected type from module symbol")
+		os.Exit(1)
+	}
+
+	return plugin
+}
+
+func main() {	
 	// Load config files
 	cfg := loadConfig()
+	
+	// Load plugins
+	plugin := loadPlugins()
 
 	// Load certificate
 	cer, err := tls.LoadX509KeyPair(cfg.Certs.Cert, cfg.Certs.Key)
@@ -37,6 +69,6 @@ func main() {
 			log.Println(err)
 			continue
 		}
-		go handleConnection(conn, cfg)
+		go handleConnection(conn, cfg, plugin)
 	}
 }
