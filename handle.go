@@ -22,7 +22,7 @@ type geminiHeader struct {
 	meta string
 }
 
-func handleConnection(conn net.Conn, cfg plugins.ServerCfg, plugin plugins.Plugin) {
+func handleConnection(conn net.Conn, cfg plugins.ServerCfg, pluginlist []plugins.Plugin) {
 	var header geminiHeader
 	var content []byte
 	var data string 
@@ -92,9 +92,11 @@ func handleConnection(conn net.Conn, cfg plugins.ServerCfg, plugin plugins.Plugi
     	}
 
     	for _, f := range files {
-				if (f.Name() == plugin.HandleType()) {
-					data = plugin.HandleGemini(plugins.GeminiVars{absPath, u, conn, cfg})
-					goto WRITE
+				for _, p := range pluginlist {
+					if f.Name() == p.HandleType() {
+						data = p.HandleGemini(plugins.GeminiVars{absPath, u, conn, cfg})
+						goto WRITE
+					}
 				}
     	}
  

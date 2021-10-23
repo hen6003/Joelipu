@@ -16,6 +16,7 @@ func loadConfig() plugins.ServerCfg {
 	cfg.Net.Port = 1965
 	cfg.Content.Root = "root"
 	cfg.Content.Index = "index.gmi"
+	cfg.Content.Plugins = "plugins"
 
 	// Read config file
 	if _, err := toml.DecodeFile("config.toml", &cfg); err != nil {

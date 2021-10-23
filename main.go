@@ -6,30 +6,43 @@ import (
 	"strconv"
 	"plugin"
 	"os"
+	"io/ioutil"
+	"path/filepath"
 
 	"gmi.hen6003.xyz/joelipu/plugins"
 )
 
-func loadPlugins() plugins.Plugin {
-	plug, err := plugin.Open("plugin/test.so")
-	if err != nil {
+func loadPlugins(path string) []plugins.Plugin {
+	var pluginlist []plugins.Plugin
+
+  files, err := ioutil.ReadDir(path)
+  if err != nil {
 		log.Println(err)
-		os.Exit(1)
+  }
+
+  for _, f := range files {
+		plug, err := plugin.Open(filepath.Join(path,f.Name()))
+		if err != nil {
+			log.Println(err, "... skipping")
+			continue
+		}
+
+		symPlugin, err := plug.Lookup("Impl")
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+
+		newplugin, ok := symPlugin.(*plugins.Plugin)
+		if !ok {
+			log.Println("Unexpected type")
+			os.Exit(1)
+		}
+
+		pluginlist = append(pluginlist, *newplugin)
 	}
 
-	symPlugin, err := plug.Lookup("Impl")
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
-	plugin, ok := symPlugin.(*plugins.Plugin)
-	if !ok {
-		log.Println("Unexpected type")
-		os.Exit(1)
-	}
-
-	return *plugin
+	return pluginlist
 }
 
 func main() {	
@@ -37,7 +50,7 @@ func main() {
 	cfg := loadConfig()
 	
 	// Load plugins
-	plugin := loadPlugins()
+	pluginlist := loadPlugins(cfg.Content.Plugins)
 
 	// Load certificate
 	cer, err := tls.LoadX509KeyPair(cfg.Certs.Cert, cfg.Certs.Key)
@@ -66,6 +79,6 @@ func main() {
 			log.Println(err)
 			continue
 		}
-		go handleConnection(conn, cfg, plugin)
+		go handleConnection(conn, cfg, pluginlist)
 	}
 }

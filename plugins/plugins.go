@@ -25,6 +25,7 @@ type netInfo struct {
 type contentInfo struct {
 	Root string
 	Index string
+	Plugins string
 }
 
 type GeminiVars struct {
