@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
+	github.com/sahilm/fuzzy v0.1.0 // indirect
 	go.uber.org/atomic v1.5.0 // indirect
 	go.uber.org/config v1.4.0 // indirect
 	go.uber.org/multierr v1.4.0 // indirect
