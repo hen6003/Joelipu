@@ -1,3 +1,5 @@
+// Regex search plugin
+
 package main
 
 import (
@@ -7,7 +9,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/sahilm/fuzzy"
+	"regexp"
 
 	"gmi.hen6003.xyz/joelipu/plugins"
 )
@@ -15,17 +17,29 @@ import (
 type PluginImpl struct{}
 
 func (p PluginImpl) HandleGemini(vars plugins.GeminiVars) string {
+	var fileSystem fs.FS
+	var fileContents []string
+	var fileNames []string
+
 	if vars.URL.RawQuery == "" { // If empty query ask for query
 		return "10 Search query\r\n"
 	}
 
 	// Else create gemini header and title
-	data := "20 text/gemini\r\n# Search\n\n## Query: \n>" + string(vars.URL.RawQuery) + "\n\n## Results\n"
+	data := "20 text/gemini\r\n# Regex search\n\n## Query: \n>" + string(vars.URL.RawQuery) + "\n\n"
+
+	// Compile regex
+	regex, err := regexp.Compile(string(vars.URL.RawQuery))
+	if err != nil { // If failed return so
+		data += "## Failed\nRegex failed to compile"
+		goto END
+	}
+
+	// Else show results
+	data += "## Results\n"
 
 	// Read all files in root
-	var fileContents []string
-	var fileNames []string
-	fileSystem := os.DirFS(vars.Cfg.Content.Root)
+	fileSystem = os.DirFS(vars.Cfg.Content.Root)
 
 	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
 		if !d.IsDir() && d.Name()[0] != '.' {
@@ -37,21 +51,24 @@ func (p PluginImpl) HandleGemini(vars plugins.GeminiVars) string {
 
 			fileContents = append(fileContents, string(content))
 			fileNames = append(fileNames, path)
+		} else if d.Name()[0] == '.' {
+			return fs.SkipDir // Ignore hidden directorys
 		}
 
 		return nil
 	})
 
-	matches := fuzzy.Find(string(vars.URL.RawQuery), fileContents)
-
-	if len(matches) > 0 {
-		for _, m := range matches {
-			data += "=> " + fileNames[m.Index] + "\n"
+	if (len(fileNames) > 0) {
+		for i, c := range fileContents {
+			if regex.MatchString(c) {
+				data += "=> " + fileNames[i] + "\n"
+			}
 		}
 	} else {
 		data += "No matches found\n"
 	}
 
+END:
 	data += "\n## Search again \n=> " + vars.URL.Path + " search\n"
 
 	return data
