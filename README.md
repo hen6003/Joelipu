@@ -55,6 +55,35 @@ If a file is executable the server will execute the file and serve the output. T
 * SERVER_PORT: The port the server is hosting on
 * SERVER_SOFTWARE: "Joelipu" (For compatability with the spec)
 
+## Plugins
+Plugins are done via go plugins, they allow a more direct use of the connection, and can emulate a directory. The plugin must provide a path it handles with HandlePath() (this path is inaccessable in the root directory even if it exists). If the visitors request matches the plugins path the plugins HandleGemini() function is called, with info about the request and the server.
+
+### Example plugin
+```Example plugin code
+package main
+
+import (
+	"gmi.hen6003.xyz/joelipu/plugins"
+)
+
+type PluginImpl struct{}
+
+func (p PluginImpl) HandleGemini(vars plugins.GeminiVars) string {
+	return "10 Hello World\r\n"
+}
+
+func (p PluginImpl) HandlePath() string {
+	return "hello"
+}
+
+var Impl plugins.Plugin = PluginImpl{}
+```
+
+### Compile command
+```Plugin compile command
+go build -buildmode=plugin plugin.go
+```
+
 ## Setup certificates
 Make a folder called 'certs', and use openssl to create the certificates
 ```Example command

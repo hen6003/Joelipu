@@ -7,11 +7,11 @@ import (
 type PluginImpl struct{}
 
 func (p PluginImpl) HandleGemini(vars plugins.GeminiVars) string {
-	return "20 text/plain\r\n" + vars.Cfg.Content.Root
+	return "10 Hello World\r\n"
 }
 
-func (p PluginImpl) HandleType() string {
-	return ".hello"
+func (p PluginImpl) HandlePath() string {
+	return "hello"
 }
 
 var Impl plugins.Plugin = PluginImpl{}
