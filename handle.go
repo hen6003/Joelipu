@@ -62,9 +62,11 @@ func handleConnection(conn net.Conn, cfg plugins.ServerCfg, pluginlist []plugins
 	// Check for plugins
 	for _, p := range pluginlist {
 		handleType := p.HandleType()
-		if handleType == u.Path[1:len(handleType)+1] {
-			data = p.HandleGemini(plugins.GeminiVars{absPath, u, conn, cfg})
-			goto WRITE
+		if len(u.Path) > len(handleType) {
+			if handleType == u.Path[1:len(handleType)+1] {
+				data = p.HandleGemini(plugins.GeminiVars{absPath, u, conn, cfg})
+				goto WRITE
+			}
 		}
 	}
 
