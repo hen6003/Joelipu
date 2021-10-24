@@ -36,7 +36,7 @@ type GeminiVars struct {
 }
 
 type Plugin interface {
-	HandleType() string
+	HandlePath() string
 	HandleGemini(vars GeminiVars) string
 }
 

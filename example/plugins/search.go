@@ -76,8 +76,8 @@ END:
 	return data
 }
 
-func (p PluginImpl) HandleType() string {
-	return ".search"
+func (p PluginImpl) HandlePath() string {
+	return "search"
 }
 
 var Impl plugins.Plugin = PluginImpl{}
