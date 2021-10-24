@@ -81,7 +81,7 @@ var Impl plugins.Plugin = PluginImpl{}
 
 ### Compile command
 ```Plugin compile command
-go build -buildmode=plugin plugin.go
+$ go build -buildmode=plugin plugin.go
 ```
 
 ## Setup certificates
