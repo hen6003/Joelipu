@@ -4,6 +4,7 @@ Gemini server written for my capsule (gemini://gmi.hen6003.xyz/)
 ## Features
 * Static file hosting
 * CGI file hosting
+* Plugins via dynamic libarys
 
 ## Config
 The server is configured in TOML from a config.toml file in the directory the program is ran.
@@ -11,6 +12,7 @@ The server is configured in TOML from a config.toml file in the directory the pr
 ### Content
 * root: The directory (relative) holding the sites files (defualts to root)
 * index: What file to use if a directory is requested (defualts to index.gmi)
+* plugins: The directory (relative) holding plugins to be loaded (defualts to plugins)
 
 ### Net
 * port: Port to host on (defualts to 1965)
@@ -25,6 +27,7 @@ The server is configured in TOML from a config.toml file in the directory the pr
 [Content]
 root = "root"
 index = "index.gmi"
+plugins = "plugins"
 
 [Net]
 port = 1965
