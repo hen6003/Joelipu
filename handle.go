@@ -58,6 +58,15 @@ func handleConnection(conn net.Conn, cfg plugins.ServerCfg, pluginlist []plugins
 		header.meta = "Proxying is not supported"
 		goto SEND
 	}
+	
+	// Check for plugins
+	for _, p := range pluginlist {
+		handleType := p.HandleType()
+		if handleType == u.Path[1:len(handleType)+1] {
+			data = p.HandleGemini(plugins.GeminiVars{absPath, u, conn, cfg})
+			goto WRITE
+		}
+	}
 
 	// Create absolute path
 	absPath, err = filepath.Abs(filepath.Join(cfg.Content.Root, u.Path))
@@ -73,7 +82,7 @@ func handleConnection(conn net.Conn, cfg plugins.ServerCfg, pluginlist []plugins
 		header.meta = "Not allowed"
 		goto SEND
 	}
-
+ 
 	{ // Add index.gmi on if not a folder, in scope due to gotos
 		info, err := os.Stat(absPath)
 		if err != nil {
@@ -83,23 +92,6 @@ func handleConnection(conn net.Conn, cfg plugins.ServerCfg, pluginlist []plugins
 		}
 
 		if info.IsDir() {
-			// Check for plugins
-    	files, err := ioutil.ReadDir(absPath)
-    	if err != nil {
-				header.status = 51
-				header.meta = "File not found"
-				goto SEND
-    	}
-
-    	for _, f := range files {
-				for _, p := range pluginlist {
-					if f.Name() == p.HandleType() {
-						data = p.HandleGemini(plugins.GeminiVars{absPath, u, conn, cfg})
-						goto WRITE
-					}
-				}
-    	}
- 
 			absPath = filepath.Join(absPath, cfg.Content.Index)
 		}
 		
