@@ -11,7 +11,7 @@ import (
 
 	"regexp"
 
-	"gmi.hen6003.xyz/joelipu/plugins"
+	"github.com/hen6003/joelipu/plugins"
 )
 
 type PluginImpl struct{}

@@ -63,7 +63,7 @@ Plugins are done via go plugins, they allow a more direct use of the connection,
 package main
 
 import (
-	"gmi.hen6003.xyz/joelipu/plugins"
+	"github.com/hen6003/joelipu/plugins"
 )
 
 type PluginImpl struct{}
