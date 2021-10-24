@@ -52,7 +52,7 @@ func (p PluginImpl) HandleGemini(vars plugins.GeminiVars) string {
 
 			fileContents = append(fileContents, string(content))
 			fileNames = append(fileNames, path)
-		} else if d.Name()[0] == '.' && len(d.Name()) > 1 {
+		} else if d.Name()[0] == '.' && len(d.Name()) > 1 && d.IsDir() {
 			return fs.SkipDir // Ignore hidden directorys
 		}
 
@@ -61,7 +61,7 @@ func (p PluginImpl) HandleGemini(vars plugins.GeminiVars) string {
 
 	for i, c := range fileContents {
 		if regex.MatchString(c) {
-			data += "=> " + fileNames[i] + "\n"
+			data += "=> /" + fileNames[i] + "\n"
 			matches = true
 		}
 	}
