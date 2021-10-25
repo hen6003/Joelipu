@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"gmi.hen6003.xyz/joelipu/plugins"
+	"github.com/hen6003/joelipu/plugins"
 )
 
 func loadConfig() plugins.ServerCfg {

@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"gmi.hen6003.xyz/joelipu/plugins"
+	"github.com/hen6003/joelipu/plugins"
 )
 
 func loadPlugins(path string) []plugins.Plugin {
